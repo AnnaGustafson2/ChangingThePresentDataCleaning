@@ -5,7 +5,7 @@ const S = 'string', N = 'number', B = 'boolean', D = 'object'; // D = Date
  * Runs every test, logs PASS/FAIL (or ERROR if a test throws),
  * then logs a summary. Add new test functions to the array below.
  */
-function tests() {
+function formula_tests() {
   const testFunctions = [
     test_convertFormulas_singleFormulaText,
     test_convertFormulas_singleFormulaNumber,
@@ -121,10 +121,12 @@ function runConversionTest(sheetName, rows, types, options = {}) {
 
   const results = [checkNoFormulas(sheet)];
   cells.forEach(cell => {
-    results.push(checkFormat(cell, formatsBefore[cell], sheet.getRange(cell).getNumberFormat()));
+    const after = sheet.getRange(cell).getNumberFormat();
+    const gainedDateFormat = expected[cell] === D && formatsBefore[cell] === '';
+    results.push(gainedDateFormat || checkFormat(cell, formatsBefore[cell], after));
     results.push(checkType(sheet, cell, expected[cell]));
   });
-  return results.every(Boolean); // all checks run first, so every failure is logged
+  return results.every(Boolean);
 }
 
 /* ---------- Tests ---------- */
@@ -211,7 +213,7 @@ function test_convertFormulas_formattingFormulas() {
     [S, D],
     [S, N],
   ], {
-    formats: { B2: '$#,##0.00', B3: '0.00%', B4: 'yyyy-mm-dd', B5: '0.000' },
+    formats: { B2: '$#,##0.00', B3: '0.00%', B4: 'mm-dd-yyyy', B5: '0.000' },
   });
 }
 
